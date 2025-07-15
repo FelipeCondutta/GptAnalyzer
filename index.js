@@ -377,17 +377,37 @@ app.post('/api/webhook-eduzz', async (req, res) => {
   try {
     console.log('BODY RECEBIDO:', JSON.stringify(req.body, null, 2));
 
-    // Extrai email e nome do comprador dentro de data.buyer
-    const buyer_email = req.body?.data?.buyer?.email || null;
-    const buyer_name = req.body?.data?.buyer?.name || null;
+    const buyer_email = req.body?.cus_email?.toLowerCase() || null;
+    const buyer_name = req.body?.cus_name || null;
+    const event_name = req.body?.event_name || null;
+    const trans_status = req.body?.trans_status || null;
+    const trans_cod = req.body?.trans_cod?.toString();
 
-    // Permite requisições de teste ou incompletas para validação da Eduzz
-    if (!buyer_email || !buyer_name) {
-      console.warn('Requisição recebida sem dados completos. Respondendo 200 para permitir validação.');
-      return res.status(200).json({ message: 'Webhook de teste validado com sucesso.' });
-    }
+    if (!trans_cod) {
+  console.warn('Webhook ignorado: trans_cod ausente.');
+  return res.status(200).json({ message: 'Webhook ignorado sem trans_cod.' });
+}
 
-    // Busca um token disponível no banco de dados
+// Verifica se esse trans_cod já foi usado
+const jaEnviado = await AccessToken.findOne({ trans_cod });
+
+if (jaEnviado) {
+  console.warn(`Transação ${trans_cod} já processada para ${jaEnviado.email}`);
+  return res.status(200).json({ message: 'Transação já processada anteriormente.' });
+}
+
+// Verifica se é o evento certo e se o pagamento foi aprovado
+if (
+  !buyer_email ||
+  !buyer_name ||
+  buyer_email.includes('@eduzz.com') ||
+  event_name !== 'invoice_paid' ||
+  trans_status !== 3
+) {
+  console.warn('Webhook ignorado: dados incompletos ou pagamento não confirmado.');
+  return res.status(200).json({ message: 'Webhook ignorado com sucesso.' });
+}
+    
     const tokenDisponivel = await AccessToken.findOne({ used: false });
 
     if (!tokenDisponivel) {
@@ -395,12 +415,13 @@ app.post('/api/webhook-eduzz', async (req, res) => {
       return res.status(500).json({ error: 'Nenhum token disponível no momento.' });
     }
 
-    // Atualiza o token como usado e associa ao comprador
+    // Atualiza o token como usado e associa ao usuario 
     tokenDisponivel.email = buyer_email;
     tokenDisponivel.used = true;
+    tokenDisponivel.trans_cod = trans_cod;
     await tokenDisponivel.save();
 
-    // Configura o transporte do Nodemailer
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -409,7 +430,6 @@ app.post('/api/webhook-eduzz', async (req, res) => {
       }
     });
 
-    // Define o conteúdo do email
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: buyer_email,
@@ -428,7 +448,6 @@ Atenciosamente,
 Equipe Hey Kodee`
     };
 
-    // Envia o email
     await transporter.sendMail(mailOptions);
 
     console.log(`Token ${tokenDisponivel.token} enviado para ${buyer_email}`);
@@ -443,3 +462,4 @@ Equipe Hey Kodee`
     return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
 });
+
