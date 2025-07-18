@@ -396,7 +396,7 @@ if (jaEnviado) {
   return res.status(200).json({ message: 'Transação já processada anteriormente.' });
 }
 
-// Verifica se é o evento certo e se o pagamento foi aprovado
+// Verifica se é o evento certo e se o pagamento foi confirmado
 if (
   !buyer_email ||
   !buyer_name ||
