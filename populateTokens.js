@@ -12,8 +12,7 @@ function gerarToken(tamanho = 8) {
   let temEspecial = false;
 
   for (let i = 0; i < tamanho; i++) {
-    // Sorteia se vai ser especial ou não (mas não garante ainda)
-    if (Math.random() < 0.2) { // 20% de chance de ser especial
+    if (Math.random() < 0.2) {
       token += especiais.charAt(Math.floor(Math.random() * especiais.length));
       temEspecial = true;
     } else {
@@ -21,7 +20,6 @@ function gerarToken(tamanho = 8) {
     }
   }
 
-  // Se não caiu nenhum especial, força pelo menos um
   if (!temEspecial) {
     const pos = Math.floor(Math.random() * tamanho);
     const especial = especiais.charAt(Math.floor(Math.random() * especiais.length));

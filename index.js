@@ -14,14 +14,12 @@ import mongoose from 'mongoose';
 import AccessToken from './models/AccessToken.js';
 import UsedToken from './models/UsedToken.js';
 
-//instancia MongoDB
    mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB conectado!'))
   .catch(err => console.error('Erro ao conectar MongoDB:', err));
 
 
 
-//index
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -39,9 +37,6 @@ app.get('/', (req, res) => {
 });
 
 
-//rota /upload para proteger com o middleware
-
-// app.post('/upload', upload.single('pdf'), async (req, res, next) =>
    app.post('/upload', validateAccessToken, upload.single('pdf'), async (req, res, next) => {
   try {
     const email = req.body.email;
@@ -98,7 +93,7 @@ app.get('/', (req, res) => {
       .replace(/## BLOCK 3: APPLICATION SUPPORT MATERIALS/gi, '📁 Materiais de Apoio à Candidatura');
 
     // CONVERSÃO DE MARKDOWN PARA HTML 
-    const htmlContentFromMarkdown = marked(feedback); // Converte o feedback (agora em Markdown) para HTML
+    const htmlContentFromMarkdown = marked(feedback);
     const imageBuffer = fs.readFileSync(path.join(__dirname, 'assets', 'HeyKodee.png'));
     const imageBase64 = imageBuffer.toString('base64');
 
@@ -309,7 +304,6 @@ Com carinho, Equipe Hey, Kodee`,
   }
 });
 
-// ROTA PARA VALIDAR TOKEN NO BOTAO
 app.post('/validate-token', async (req, res) => {
   try {
     const token = req.body.token || req.headers['x-access-token'];
@@ -357,11 +351,9 @@ async function validateAccessToken(req, res, next) {
   const foundToken = await AccessToken.findOne({ token, used: false });
   if (!foundToken) return res.status(403).json({ error: 'Token inválido ou já utilizado.' });
 
-  // Atualiza como usado
   foundToken.used = true;
   await foundToken.save();
 
-  // Move para a coleção de tokens usados
   await UsedToken.create({
     token: foundToken.token,
     email: req.body.email || 'não informado'
@@ -414,8 +406,7 @@ if (
       console.error('Sem tokens disponíveis.');
       return res.status(500).json({ error: 'Nenhum token disponível no momento.' });
     }
-
-    // Atualiza o token como usado e associa ao usuario 
+ 
     tokenDisponivel.email = buyer_email;
     tokenDisponivel.used = true;
     tokenDisponivel.trans_cod = trans_cod;

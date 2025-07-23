@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="main.css">
     <style>
-        /* Ajuste para garantir que o input file fique invisível */
         #pdfFile {
             display: none;
         }
@@ -23,7 +22,6 @@
             <button class="validate-btn">validar chave de uso</button>
             <div id="key-validation-message" class="key-validation-message"></div>
         </div>
-        <!-- Formulário oculto para upload -->
         <form id="upload-form" enctype="multipart/form-data" style="display:none;">
             <input type="file" id="pdfFile" name="pdf" accept="application/pdf">
         </form>
@@ -34,7 +32,6 @@
             <textarea id="descInput" class="message-input" placeholder="Digite seu objetivo e uma breve descrição" style="height: 70px; resize: vertical;"></textarea>
             <div class="message-actions">
                 <button id="clip-btn" class="icon-btn" title="Anexar arquivo" type="button">
-                    <!-- SVG do clipe -->
                     <svg viewBox="0 0 24 24">
                         <path d="M16.5,6.5v7.79c0,2.07-1.68,3.75-3.75,3.75s-3.75-1.68-3.75-3.75V6.5c0-1.24,1.01-2.25,2.25-2.25
                         s2.25,1.01,2.25,2.25v7.25c0,0.41-0.34,0.75-0.75,0.75s-0.75-0.34-0.75-0.75V6.5h-1.5v7.79c0,1.38,1.12,2.5,2.5,2.5
@@ -44,14 +41,12 @@
                 </button>
                 <span id="file-name" style="margin-left: 10px; flex: 1; color: #7E04D1; font-weight: 500;"></span>
                 <button id="send-btn" class="icon-btn" title="Enviar mensagem" type="button">
-                    <!-- SVG da seta -->
                     <svg viewBox="0 0 24 24">
                         <path d="M2 21l21-9-21-9v7l15 2-15 2z"/>
                     </svg>
                 </button>
             </div>
         </div>
-        <!-- Feedback visual -->
         <div id="loading" style="display: none; margin-top: 16px;">Analisando currículo, aguarde...</div>
         <div id="loading-bar-container" style="display: none; width: 100%; max-width: 400px; height: 10px; background-color: #e0e0e0; border-radius: 5px; margin: 1rem 0; overflow: hidden;">
             <div id="loading-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #7E04D1 60%, #C976FF 100%); transition: width 0.3s;"></div>
@@ -86,7 +81,6 @@
         }
     });
 
-    // Abrir seletor de arquivo ao clicar no clipe
     clipBtn.addEventListener('click', () => {
         pdfInput.click();
     });
